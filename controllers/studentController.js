@@ -1,5 +1,6 @@
 import Student from "../models/student.js"
 
+/*
 export function getStudents(req ,res) {
   
     Student.find().then(
@@ -19,6 +20,23 @@ export function getStudents(req ,res) {
     )
 
 }
+*/
+
+export async function getStudents(req,res){
+  try{
+    const students = await Student.find()
+    res.json(students)
+
+  }catch(error){
+    res.status(500).json(
+      {
+        message : "Fialed to fetch students"
+      }
+    )
+  }
+}
+
+
 
 export function createStudents(req , res) {
 
