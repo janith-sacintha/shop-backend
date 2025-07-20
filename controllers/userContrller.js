@@ -51,7 +51,7 @@ export function userLogin (req , res) {
         }
     ).then(
         (user)=>{
-            if(user === null){
+            if(user == null){
                 res.status(404).json(
                     {
                         message : "User not found"
@@ -94,3 +94,14 @@ export function userLogin (req , res) {
 }
 
 
+export function isAdmin(req){
+    if(req.user == null){
+        return false;
+    }
+
+    if(req.user.role == "admin"){
+        return true;
+    }else{
+        return false;
+    }
+}
