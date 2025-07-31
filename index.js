@@ -12,7 +12,7 @@ const app = express();
 
 app.use(bodyParser.json())
 
-app.use(cors())
+app.use(cors()) //frontend backend integration
 
 app.use(
   (req ,res ,next)=>{
@@ -71,5 +71,3 @@ app.use("/api/products", productRouter)
 app.listen(5000 , ()=> { 
   console.log("your server is running on port 5000")
 })
-
-
