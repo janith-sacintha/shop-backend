@@ -144,3 +144,29 @@ export async function getProductInfo(req,res){
 }
 
 
+export async function getFilteredProducts(req, res) {
+    const keyword = req.params.keyword
+        ? { name: { $regex: req.params.keyword, $options: "i" } } // ✅ fixed
+        : {};
+
+    try {
+        if(isAdmin(req)){
+            const products = await Product.find({ ...keyword })
+            res.json(products)
+            return 
+
+        }else{
+            let query = { isAvailable: true }; // always filter available products
+            
+            const products = await Product.find({ ...query , ...keyword })
+            res.json(products)
+            return 
+        }
+        
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
+
+
