@@ -7,6 +7,7 @@ import productRouter from "./routers/productRouter.js";
 import orderRouter from "./routers/orderRouter.js"
 import dotenv from "dotenv"
 import cors from "cors"
+import messageRouter from "./routers/messageRouter.js";
 dotenv.config()
 
 const app = express();
@@ -68,6 +69,7 @@ mongoose.connect(connectionString).then(
 app.use("/api/users" , userRouter)
 app.use("/api/products", productRouter)
 app.use("/api/orders" , orderRouter)
+app.use("/api/contact-us", messageRouter)
 
 app.listen(5000 , ()=> { 
   console.log("your server is running on port 5000")

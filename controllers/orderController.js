@@ -11,7 +11,7 @@ export async function createOrder(req,res){
                 return;
             }
 
-            //CBC00200 -- > 99,999
+            //P00200 -- > 99,999
             const latestOrder = await Order.find().sort({date : -1}).limit(1)
             if(latestOrder.length > 0){
                 const lastOrderIdInString = latestOrder[0].orderId
@@ -99,5 +99,63 @@ export async function getOrders(req,res){
     }catch(error){
         console.error("Error fetching products", error)
         res.status(500).json({message : "Failed to fetch products"})
+    }
+}
+
+
+
+export async function deleteOrder(req,res){
+    if(!isAdmin(req)){
+        res.status(403).json(
+            {
+                message : "Access denied. Admin only"
+            }
+        )
+        return
+    }
+
+    const orderId = req.params.orderId
+
+    try{
+        await Product.deleteOne(
+            {
+                orderId : orderId
+            }
+        )
+
+        res.json({message : "order was deleted sucessfully"})
+        
+    }catch(error){
+        console.error(`error deleting order : ${error}`)
+        res.json({message : "couldn't delete the order"})
+
+    }
+}
+
+
+export async function updateOrderStatus(req,res){
+    if(!isAdmin(req)){
+        res.status(403).json({message : "Access denied. Admin only"})
+        return
+    }
+
+    const data = req.body
+    const orderId = req.params.orderId
+    data.orderId = orderId
+
+
+    try{
+        await Product.updateOne(
+            {
+                orderId : orderId
+            },
+            data
+        )
+
+        res.json({message : "Successfully updated the product"})
+
+    }catch(error){
+        console.error(`error updating order : ${error}`)
+        res.json({message : "couldn't update the order"})
     }
 }
