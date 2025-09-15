@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 
-const messageSchema = new mongoose.Schema({
+const messageSchema = new mongoose.Schema(
+{
     name : {
         type : String,
         required : true
@@ -13,7 +14,9 @@ const messageSchema = new mongoose.Schema({
         type : String,
         required : true
     }
-})
+},  
+    {timestamps : true }
+)
 
 const Message = mongoose.model("message", messageSchema)
 export default Message;

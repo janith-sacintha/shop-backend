@@ -136,26 +136,24 @@ export async function deleteOrder(req,res){
 export async function updateOrderStatus(req,res){
     if(!isAdmin(req)){
         res.status(403).json({message : "Access denied. Admin only"})
-        return
+        return;
     }
 
-    const data = req.body
-    const orderId = req.params.orderId
-    data.orderId = orderId
-
-
     try{
-        await Product.updateOne(
-            {
-                orderId : orderId
-            },
-            data
+        const {status} = req.body
+        await Order.findOneAndUpdate(
+            {orderId: req.params.orderId},
+            {status},
+            {new: true}
         )
 
-        res.json({message : "Successfully updated the product"})
+        res.json({message : "Successfully updated the order"})
 
     }catch(error){
         console.error(`error updating order : ${error}`)
         res.json({message : "couldn't update the order"})
     }
 }
+
+
+

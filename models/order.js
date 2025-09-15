@@ -51,7 +51,7 @@ const orderSchema = new mongoose.Schema(
                 },
                 qty : {
                     type : Number,
-                    reuired : true
+                    required : true
                 }
             }
         ],

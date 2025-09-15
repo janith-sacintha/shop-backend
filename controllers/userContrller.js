@@ -1,8 +1,6 @@
 import User from "../models/user.js";
 import bcrypt from "bcrypt"
-import e from "express";
 import jwt from "jsonwebtoken"
-import dotenv from "dotenv"
 
 export function createUser (req , res ) {
 
@@ -102,7 +100,9 @@ export function getUser(req,res) {
         )
     } else {
         res.json(
-            { name : req.user.firstName+"-"+req.user.lastName}
+            { name : req.user.firstName+"-"+req.user.lastName ,
+                email : req.user.email
+            }
         )
     }
 }
