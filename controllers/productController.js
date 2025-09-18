@@ -89,7 +89,7 @@ export async function deleteProduct(req,res){
 export async function updateProduct(req,res){
     if(!isAdmin(req)){
         res.status(403).json({message : "Access denied. Admin only"})
-        return
+        return;
     }
 
     const data = req.body

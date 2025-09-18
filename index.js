@@ -8,7 +8,7 @@ import orderRouter from "./routers/orderRouter.js"
 import dotenv from "dotenv"
 import cors from "cors"
 import messageRouter from "./routers/messageRouter.js";
-import emailRouter from "./routers/emailRouter.js";
+import reviewRouter from "./routers/reviewRouter.js";
 dotenv.config()
 
 const app = express();
@@ -69,7 +69,8 @@ mongoose.connect(connectionString).then(
 
 app.use("/api/users" , userRouter)
 app.use("/api/products", productRouter)
-app.use("/api/orders/" , orderRouter)
+app.use("/api/orders" , orderRouter)
+app.use("/api/reviews", reviewRouter)
 app.use("/api/contact-us", messageRouter)
 //app.use("/api/send-email", emailRouter)
 

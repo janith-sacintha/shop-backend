@@ -91,11 +91,10 @@ export async function getOrders(req,res){
         if(req.user.role == "admin"){
             const orders = await Order.find().sort({date : -1})
             res.json(orders)
-        }else{
-            const orders = await Order.find({email : req.user.email})
+        } else {
+            const orders = await Order.find({ email : req.user.email})
             res.json(orders)
         }
-
     }catch(error){
         console.error("Error fetching products", error)
         res.status(500).json({message : "Failed to fetch products"})
@@ -153,6 +152,25 @@ export async function updateOrderStatus(req,res){
         console.error(`error updating order : ${error}`)
         res.json({message : "couldn't update the order"})
     }
+}
+
+
+export const getOrderById = async (req, res) => {
+  try {
+    const userId = req.user.id
+    const { orderId } = req.params
+
+    const order = await Order.findOne({ orderId, user: userId })
+
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" })
+    }
+
+    res.json(order)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: "Failed to fetch order details" })
+  }
 }
 
 
