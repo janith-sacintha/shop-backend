@@ -63,6 +63,7 @@ export function userLogin (req , res) {
 
                     const token = jwt.sign(
                         {
+                            id : user._id,
                             email : user.email,
                             firstName : user.firstName,
                             lastName : user.lastName,
@@ -100,7 +101,7 @@ export function getUser(req,res) {
         )
     } else {
         res.json(
-            { name : req.user.firstName+"-"+req.user.lastName ,
+            { name : req.user ,
                 email : req.user.email
             }
         )

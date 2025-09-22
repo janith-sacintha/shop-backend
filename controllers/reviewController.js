@@ -1,48 +1,73 @@
-import Review from "../models/review.js"
+import WebsiteReview from "../models/review.js";
 
-// @desc    Create a review for a product
-// @route   POST /api/reviews/:productId
-// @access  Public (no auth)
-export const createReview = async (req, res) => {
-
-    if(req.user === null){
-            res.status(403).json({message : "Loging first"})
-            return;
-    }
-    
+export const getAllReviews = async (req, res) => {
   try {
-    const { text } = req.body
-    const user = req.user.firstName
-    const product = req.params.productId
+    const reviews = await WebsiteReview.find()
+      .populate("user", "firstName lastName image")
+      .sort({ createdAt: -1 });
+    res.json(reviews);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to fetch reviews" });
+  }
+};
 
-    if (!text || !user) {
-      return res.status(400).json({ message: "User and text are required" })
-    }
+export const addReview = async (req, res) => {
+  try {
+    const { text, rating } = req.body;
+    if (!text || !rating) return res.status(400).json({ message: "Text and rating required" });
 
-    const review = new Review({
-      product,
-      user,
+    const newReview = new WebsiteReview({
       text,
-    })
+      rating,
+      user: req.user.id, 
+    });
 
-    await review.save()
-    res.status(201).json(review)
+    await newReview.save();
+    await newReview.populate("user", "firstName lastName image");
+
+    res.status(201).json(newReview);
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ message: "Failed to add review" })
+    console.error(err);
+    res.status(500).json({ message: "Failed to add review" });
   }
-}
+};
 
-// @desc    Get all reviews for a product
-// @route   GET /api/reviews/:productId
-// @access  Public
-export const getProductReviews = async (req, res) => {
+export const updateReview = async (req, res) => {
   try {
-    const product = req.params.productId
-    const reviews = await Review.find({ product }).sort({ createdAt: -1 })
-    res.json(reviews)
+    const { text, rating } = req.body;
+    const review = await WebsiteReview.findById(req.params.id);
+    if (!review) return res.status(404).json({ message: "Review not found" });
+
+    if (review.user.toString() !== req.user.id.toString())
+      return res.status(403).json({ message: "Forbidden: Cannot edit others' reviews" });
+
+    review.text = text || review.text;
+    review.rating = rating || review.rating;
+
+    await review.save();
+    await review.populate("user", "firstName lastName image");
+
+    res.json(review);
   } catch (err) {
-    console.error(err)
-    res.status(500).json({ message: "Failed to fetch reviews" })
+    console.error(err);
+    res.status(500).json({ message: "Failed to update review" });
   }
-}
+};
+
+
+export const deleteReview = async (req, res) => {
+  try {
+    const review = await WebsiteReview.findById(req.params.id);
+    if (!review) return res.status(404).json({ message: "Review not found" });
+
+    if (!req.user || review.user.toString() !== req.user.id.toString())
+      return res.status(403).json({ message: "Forbidden: Cannot delete others' reviews" });
+
+    await WebsiteReview.findByIdAndDelete(req.params.id);
+    res.json({ message: "Review deleted successfully" });
+  } catch (err) {
+    console.error("Delete review error:", err);
+    res.status(500).json({ message: "Failed to delete review" });
+  }
+};

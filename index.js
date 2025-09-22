@@ -70,7 +70,7 @@ mongoose.connect(connectionString).then(
 app.use("/api/users" , userRouter)
 app.use("/api/products", productRouter)
 app.use("/api/orders" , orderRouter)
-app.use("/api/reviews", reviewRouter)
+app.use("/api/website-reviews", reviewRouter)
 app.use("/api/contact-us", messageRouter)
 //app.use("/api/send-email", emailRouter)
 

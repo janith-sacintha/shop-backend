@@ -1,14 +1,25 @@
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
-const reviewSchema = new mongoose.Schema(
+const websiteReviewSchema = new mongoose.Schema(
   {
-    product: { type: String , ref: "Product", required: true },
-    user: { type: String, ref: "User", required: true },
-    text: { type: String, required: true },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "users",
+      required: true,
+    },
+    rating: {
+      type: Number,
+      min: 1,
+      max: 5,
+      required: true,
+    },
+    text: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
-)
+);
 
-const Review = mongoose.model("reviews", reviewSchema)
-
-export default Review;
+const WebsiteReview = mongoose.model("websiteReviews", websiteReviewSchema);
+export default WebsiteReview;
