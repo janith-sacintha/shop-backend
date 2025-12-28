@@ -82,6 +82,9 @@ export async function createOrder(req,res){
 
 
 export async function getOrders(req,res){
+    const page = parseInt(req.params.page) || 1 ;
+    const limit = parseInt(req.params.limit) || 10;
+
     if(req.user == null){
         res.status(403).json({message : "Please login first"})
         return;
@@ -89,11 +92,28 @@ export async function getOrders(req,res){
 
     try{
         if(req.user.role == "admin"){
-            const orders = await Order.find().sort({date : -1})
-            res.json(orders)
+            //pagination
+            const orderCount = await Order.countDocuments();
+            const totalPages = Math.ceil(orderCount/limit);
+
+            const orders = await Order.find().skip(limit * (page-1)).limit(limit).sort({date : -1})
+            res.json(
+                {
+                    orders : orders,
+                    totalPages : totalPages
+                }
+            )
         } else {
-            const orders = await Order.find({ email : req.user.email})
-            res.json(orders)
+            const orderCount = await Order.countDocuments({ email : req.user.email});
+            const totalPages = Math.ceil(orderCount/limit);
+
+            const orders = await Order.find({ email : req.user.email}).skip(limit * (page-1)).limit(limit).sort({date : -1})
+            res.json(
+                {
+                    orders : orders,
+                    totalPages : totalPages
+                }
+            )
         }
     }catch(error){
         console.error("Error fetching products", error)

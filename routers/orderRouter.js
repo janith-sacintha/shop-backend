@@ -4,7 +4,7 @@ import { createOrder, deleteOrder, getOrderById, getOrders, updateOrderStatus } 
 const orderRouter = express.Router()
 
 orderRouter.post("/" , createOrder)
-orderRouter.get("/" ,getOrders)
+orderRouter.get("/:page/:limit" ,getOrders)
 orderRouter.get("/:orderId", getOrderById)
 orderRouter.delete("/:orderId", deleteOrder)
 orderRouter.put("/:orderId", updateOrderStatus)
