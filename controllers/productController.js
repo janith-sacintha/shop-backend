@@ -36,15 +36,34 @@ export async function createProduct(req,res){
 
 
 export async function getProducts(req,res){
+    const page = parseInt(req.params.page) || 1 ;
+    const limit = parseInt(req.params.limit) || 10;
+
     try{
         if(isAdmin(req)){
-            const products = await Product.find()
-            res.json(products)
+            const orderCount = await Product.countDocuments();
+            const totalPages = Math.ceil(orderCount/limit);
+
+            const products = await Product.find().skip(limit * (page - 1)).limit(limit)
+            res.json(
+                {
+                    products : products,
+                    totalPages : totalPages
+                }
+            )
             return 
 
         }else{
-            const products = await Product.find({isAvailable: true})
-            res.json(products)
+            const orderCount = await Product.countDocuments({isAvailable: true});
+            const totalPages = Math.ceil(orderCount/limit);
+
+            const products = await Product.find({isAvailable: true}).skip(limit * (page-1)).limit(limit)
+            res.json(
+                {
+                    products : products,
+                    totalPages : totalPages
+                }
+            )
             return 
         }
 
@@ -143,7 +162,7 @@ export async function getProductInfo(req,res){
     }
 }
 
-
+/*
 export async function getFilteredProducts(req, res) {
     const keyword = req.params.keyword
         ? { name: { $regex: req.params.keyword, $options: "i" } } // ✅ fixed
@@ -168,5 +187,5 @@ export async function getFilteredProducts(req, res) {
         res.status(500).json({ message: "Server error" });
     }
 }
-
+*/
 
