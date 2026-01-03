@@ -159,14 +159,18 @@ export async function updateOrderStatus(req,res){
     }
 
     try{
-        const {status} = req.body
-        await Order.findOneAndUpdate(
+        const status = req.body.status
+        const notes = req.body.notes
+
+        const updatedOrder = await Order.findOneAndUpdate(
             {orderId: req.params.orderId},
-            {status},
+            {status : status , notes : notes},
             {new: true}
         )
 
-        res.json({message : "Successfully updated the order"})
+        res.json({message : "Successfully updated the order",
+            order : updatedOrder
+        })
 
     }catch(error){
         console.error(`error updating order : ${error}`)
