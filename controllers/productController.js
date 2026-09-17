@@ -189,3 +189,34 @@ export async function getFilteredProducts(req, res) {
 }
 */
 
+export async function searchProducts(req, res) {
+    const keyword = req.params.keyword;
+    const page = parseInt(req.params.page) || 1;
+    const limit = parseInt(req.params.limit) || 10;
+
+    try {
+        const query = {
+            $or: [
+                { name: { $regex: keyword, $options: "i" } },
+                { altNames: { $regex: keyword, $options: "i" } }
+            ],
+            isAvailable: true
+        };
+
+        const productCount = await Product.countDocuments(query);
+        const totalPages = Math.ceil(productCount / limit);
+
+        const products = await Product.find(query)
+            .skip(limit * (page - 1))
+            .limit(limit);
+
+        res.json({
+            products: products,
+            totalPages: totalPages
+        });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "Server error" });
+    }
+}
