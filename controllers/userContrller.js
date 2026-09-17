@@ -1,6 +1,7 @@
 import User from "../models/user.js";
-import bcrypt from "bcrypt"
-import jwt from "jsonwebtoken"
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import axios from "axios";
 
 export function createUser (req , res ) {
 
@@ -117,5 +118,57 @@ export function isAdmin(req){
         return true;
     }else{
         return false;
+    }
+}
+
+export async function googleLogin(req, res) {
+    const googleToken = req.body.token;
+
+    try {
+        const response = await axios.get("https://www.googleapis.com/oauth2/v3/userinfo", {
+            headers: {
+                Authorization: `Bearer ${googleToken}`
+            }
+        });
+
+        const googleUser = response.data;
+        let user = await User.findOne({ email: googleUser.email });
+
+        if (user == null) {
+            user = new User({
+                firstName: googleUser.given_name,
+                lastName: googleUser.family_name,
+                email: googleUser.email,
+                role: "user",
+                isEmailVerified: true,
+                password: "123"
+            });
+            await user.save();
+        }
+
+        const token = jwt.sign(
+            {
+                email: user.email,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                role: user.role,
+                isBlocked: user.isBlocked,
+                isEmailVerified: user.isEmailVerified,
+                image: user.image
+            },
+            process.env.JWT_SECRET
+        );
+
+        res.json({
+            token: token,
+            message: "Google login successful",
+            role: user.role
+        });
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({
+            message: "Failed to fetch user info from Google"
+        });
     }
 }
