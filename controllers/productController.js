@@ -189,8 +189,12 @@ export async function getFilteredProducts(req, res) {
 }
 */
 
+function escapeRegex(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
 export async function searchProducts(req, res) {
-    const keyword = req.params.keyword;
+    const keyword = escapeRegex(req.params.keyword || "");
     const page = parseInt(req.params.page) || 1;
     const limit = parseInt(req.params.limit) || 10;
 
