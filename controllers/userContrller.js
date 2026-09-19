@@ -114,18 +114,16 @@ export async function userLogin(req, res) {
     }
 }
 
-export function getUser(req,res) {
-    if(req.user == null){
-        res.status(404).json(
-            { message : "User not found"}
-        )
-    } else {
-        res.json(
-            { name : req.user ,
-                email : req.user.email
-            }
-        )
+export function getUser(req, res) {
+    if (req.user == null) {
+        return res.status(404).json({ message: "User not found" });
     }
+
+    res.json({
+        name: req.user,          
+        email: req.user.email,
+        role: req.user.role
+    });
 }
 
 export function isAdmin(req){
