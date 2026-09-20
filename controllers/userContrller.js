@@ -86,6 +86,12 @@ export async function userLogin(req, res) {
             });
         }
 
+        if (user.isBlocked) {
+            return res.status(403).json({
+            message: "Your account has been blocked. Please contact support."
+            });
+        }
+
         const token = jwt.sign(
             {
                 id: user._id,
@@ -161,6 +167,12 @@ export async function googleLogin(req, res) {
                 password: "123"
             });
             await user.save();
+        }
+
+        if (user.isBlocked) {
+            return res.status(403).json({
+            message: "Your account has been blocked. Please contact support."
+            });
         }
 
         const token = jwt.sign(
@@ -245,3 +257,65 @@ export async function resetPassword(req, res) {
         res.status(500).json({ message: "Failed to reset password" });
     }
 }
+
+export async function getAllUsers(req, res) {
+  if (!isAdmin(req)) {
+    return res.status(403).json({ message: "Admins only" });
+  }
+
+  try {
+    const users = await User.find().select("-password").sort({ _id: -1 });
+    res.json(users);
+  } catch (err) {
+    console.error("Get all users error:", err);
+    res.status(500).json({ message: "Failed to fetch users" });
+  }
+}
+
+export async function setUserBlocked(req, res) {
+  if (!isAdmin(req)) {
+    return res.status(403).json({ message: "Admins only" });
+  }
+
+  try {
+    const { id } = req.params;
+    const { isBlocked } = req.body;
+
+    if (typeof isBlocked !== "boolean") {
+      return res.status(400).json({ message: "isBlocked must be true or false" });
+    }
+
+    if (req.user.id?.toString() === id) {
+      return res.status(400).json({ message: "You can't block your own account" });
+    }
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    if (user.role === "admin") {
+      return res.status(400).json({ message: "Admin accounts can't be blocked" });
+    }
+
+    user.isBlocked = isBlocked;
+    await user.save();
+
+    res.json({
+      message: isBlocked ? "User blocked" : "User unblocked",
+      isBlocked: user.isBlocked,
+    });
+  } catch (err) {
+    console.error("Set user blocked error:", err);
+    res.status(500).json({ message: "Failed to update user" });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Routes (put "/all" before any "/:something" route):
+//
+// IMPORTANT: blocking does nothing unless login refuses blocked users.
+// In userLogin, right AFTER the isPasswordCorrect check and BEFORE jwt.sign, add:
+//
+   
+//
+// Do the same in your google-login controller.
+// ---------------------------------------------------------------------------
