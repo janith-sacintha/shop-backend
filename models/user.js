@@ -45,7 +45,7 @@ const userSchema = new mongoose.Schema(
 
       image : {
         type : String ,
-        default : "https://static-00.iconduck.com/assets.00/profile-default-icon-2048x2045-u3j7s5nj.png"
+        default : ""
       }
       
     }

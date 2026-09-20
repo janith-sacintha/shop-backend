@@ -58,10 +58,15 @@ export const updateReview = async (req, res) => {
 
 export const deleteReview = async (req, res) => {
   try {
+    if (!req.user) return res.status(401).json({ message: "Login required" });
+
     const review = await WebsiteReview.findById(req.params.id);
     if (!review) return res.status(404).json({ message: "Review not found" });
 
-    if (!req.user || review.user.toString() !== req.user.id.toString())
+    const isOwner = review.user.toString() === req.user.id.toString();
+    const isAdmin = req.user.role === "admin";
+
+    if (!isOwner && !isAdmin)
       return res.status(403).json({ message: "Forbidden: Cannot delete others' reviews" });
 
     await WebsiteReview.findByIdAndDelete(req.params.id);
